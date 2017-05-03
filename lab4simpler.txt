@@ -1,0 +1,65 @@
+CS452/CS552/EE465/EE505 Computer Graphics Spring 2017
+Lab 4 Simpler: Viewing and Lighting with Known Object (Curvy Chair)
+
+Due: Thursday, April 6th, 2017
+
+In this lab, you are given vertices and faces for an object. You need to use the look at method to view the object from an alternate viewpoint, and add lighting to the object. 
+
+You have the choice of doing this lab or Lab 4 (the harder version), but not both. If you attempt this lab, please turn it in to the Lab 4 Simpler link. Please do not submit anything to the Lab 4 link. You will receive no credit if you do so.
+
+Code practice material:
+All material on Viewing, Lighting, and Lighting Continued.
+Material at:
+https://www.cs.unm.edu/~angel/BOOK/INTERACTIVE_COMPUTER_GRAPHICS/SEVENTH_EDITION/CODE/05/
+(see ‘ortho’, and ‘perspective’)
+Material at:
+https://www.cs.unm.edu/~angel/BOOK/INTERACTIVE_COMPUTER_GRAPHICS/SEVENTH_EDITION/CODE/06/
+(see ‘shadedCube’)
+
+To work with this lab, make sure you download the following files into a single directory: lab4simpler.txt, lab4simpler.html, lab4simpler.js, object.js, and Load the file ‘lab4simpler.html’ in your browser. You will not see anything except a black screen when you load the file into a browser. In this version of the lab, you have a curvy chair sitting right on top of the camera. You cannot see the chair, however, if you move the chair out of the way of the camera, you will be able to see it (imagine a big cave enclosing you, then you would  not really see the outside of the cave. At the moment, the object is kind of like that cave).
+
+Currently, as mentioned, the chair is centered at the origin. It is a curved chair (as if a ball were carved out to make a curvy seating area). A picture of the chair, obtained from the website ‘3Dwarehouse.com’ accompanies this lab. As the chair is placed now, it extends from -40 units on the left to 40 units on the right, -40 units on the bottom to 40 units on the top, and -40 units on the front to 40 units at the back. This means that you can imagine it sitting within a box spanning over (x=-40, y=-40, z=-40) to (x=40, y=40, z=40). The y axis of the chair’s coordinate system is oriented from bottom to top along the height of the chair, the x axis is oriented from left to right along the length of the chair, and the z axis is oriented from back to front along the depth of the chair.
+
+You need to fulfill the following requirements for this lab:-
+
+1) You need to set up the camera position using the look at method. Note: you are NOT permitted to use the lookAt() function provided by the authors in MV.js for this lab. When setting up your camera, it is easier to have your ‘at’ point at the center of the object (i.e., at (0, 0, 0) given that the chair is currently at the origin). You must position your camera so that you can see the chair from a side angle, not directly from the front. You need to figure out what your ‘eye’ should be to get a side angle view. As an example, if your eye is (0, 0, 100), you will see the front of the chair at a distance of 100 units from the center of the chair.
+
+2) You need to have two buttons, one that creates a camera with orthographic projection called ‘Orthographic’, and one that creates a camera with perspective projection called ‘Perspective’. You must use set up projection matrices for each type of projection. For the projective transformation, you are free to choose either an asymmetric or a symmetric frustum. For the symmetric frustum, you are free to specify right, top, near, and far planes, or near plane, far plane, aspect ratio, and field of view in y. Note: you are NOT permitted to use the functions ortho(), frustum(), and perspective() provided by the authors in MV.js for this lab.
+
+3) You need to have two buttons that each switch on and switch off two different lights. Each light must have ambient, diffuse, and specular components. You can choose between point light source, spotlight, and directional light source. One button should switch on or off one kind of light source, and the other should switch on a different kind of light source. Example: LightButton1 can switch on and switch off a point light source. LightButton2 can switch on and switch off a spotlight source. If you use a spotlight and a point light source, they should each be at different locations from each other. Using LightButton1 and LightButton2, I should be able to switch on both lights, or just one of the lights, or switch off all lights.
+
+For this lab, you are not permitted to use ambient light source on its own (if you want, you can use it in conjunction with another light source). 
+
+4) You need to have one button that toggles the specular reflection output, called ‘Specular’. When switched on (i.e., when you press the button an odd number of times), the object should have ambient, diffuse, and specular reflection. When switched off (i.e., when you press the button an even number of times), the object should have just ambient and diffuse reflection. When showing specular reflection, your chosen viewpoint should reveal specular highlights on the object.
+
+The object must have interpolated shading, and not flat shading. You can choose whether you interpolate colors or normals, i.e., whether you implement Gouraud shading or Phong shading is up to you.
+
+5) Your README should discuss your implementation method.
+
+6) Please include your name in lab4simpler.js and the README file.
+
+
+Deliverable:
+
+Please turn in a single .zip file, ‘lab4simpler.zip’. Your work may fall in one of the two cases.
+Case 1: If your Common/ folder is in the same directory as your lab4simpler.html, lab4simpler.js, and README.txt files, i.e., in lab4simpler.html, your script includes look like this:
+<script type="text/javascript" src="Common/webgl-utils.js"></script>
+<script type="text/javascript" src="Common/initShaders.js"></script>
+<script type="text/javascript" src="Common/MV.js"></script>
+then turn in a lab4simpler.zip file containing lab4simpler.js, object.js, lab4simpler.html, README.txt, and the entire Common/ folder. When we unzip lab4simpler.zip, we should see lab4simpler.js, lab4simpler.html, README.txt and the folder Common/, where Common/ should contain webgl-utils.js, MV.js, and initShaders.js.
+
+
+
+Case 2: If your Common/ folder is one level outside the directory containing lab4simpler.html, lab4simpler.js, and README.txt files, i.e., in lab4simpler.html your script includes look like this:
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+then turn in a lab4simpler.zip file containing lab4simpler.js, object.js, lab4simpler.html, and README.txt. You do not need to include the Common/ folder in this case.
+
+
+Scoring Rubric (out of 20 points, scaled down to 4):
+1) 5 points for setting up the camera using the look at method.
+2) 4 points for implementing orthographic and perspective projections.
+3) 5 points for implementing two different lights.
+4) 4 points for implementing specular and non-specular toggle.
+5) 2 points for discussing your implementation in the README.

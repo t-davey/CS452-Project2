@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8" >
+  <title>Assignment 4</title>
+
+  <script id="vertex-shader" type="x-shader/x-vertex">
+
+      precision mediump float;
+      attribute vec4 vertexPosition;
+      attribute vec3 nv;
+
+      uniform mat4 M, M_inversetranspose, P_orth, P_persp;
+
+      uniform float orthIsOn;
+      uniform float pointIsOn;
+      uniform float dirIsOn;
+      uniform float specIsOn;
+
+      uniform vec3 ka, kd, ks;
+
+      uniform float alpha;
+
+      uniform vec3 p0;
+      uniform vec3 sp0;
+
+      uniform vec3 Ia0, Id0, Is0;
+      uniform vec3 Ia1, Id1, Is1;
+
+      varying vec3 R;
+
+      void main() {
+          gl_PointSize = 1.0;
+
+          vec4 vertexPositionTransformed = M * vertexPosition;
+
+          vec4 nv4 = vec4( nv.x, nv.y, nv.z, 1.0 );
+          vec4 nv4transformed = M_inversetranspose * nv4;
+          vec3 nvtransformed = normalize( nv4transformed.xyz );
+
+          //get reflection for light source
+          float distance0 = length(p0-vertexPositionTransformed.xyz);
+          float a0 = .00005;
+          float b0 = 0.0;
+          float c0 = 0.0;
+          float scalefactor0 = a0 * distance0 * distance0 + b0 * distance0 + c0;
+          vec3 Ia0_pp0 = Ia0 / scalefactor0;
+          vec3 Id0_pp0 = Id0 / scalefactor0;
+          vec3 Is0_pp0 = Is0 / scalefactor0;
+
+          //get reflection for light source
+          float distance1 = length(sp0-vertexPositionTransformed.xyz);
+          float a1 = .00005;
+          float b1 = 0.0;
+          float c1 = 0.0;
+          float scalefactor1 = a1 * distance1 * distance1 + b1 * distance1 + c1;
+          vec3 Ia1_psp0 = Ia1 / scalefactor1;
+          vec3 Id1_psp0 = Id1 / scalefactor1;
+          vec3 Is1_psp0 = Is1 / scalefactor1;
+
+          vec3 Ra0, Rd0, Rs0;
+          vec3 Ra1, Rd1, Rs1;
+
+          //Ambient reflection
+          Ra0.r = ka.r * Ia0_pp0.r;
+          Ra0.g = ka.g * Ia0_pp0.g;
+          Ra0.b = ka.b * Ia0_pp0.b;
+
+          //Ambient reflection
+          Ra1.r = ka.r * Ia1_psp0.r;
+          Ra1.g = ka.g * Ia1_psp0.g;
+          Ra1.b = ka.b * Ia1_psp0.b;
+
+          //Diffuse reflection
+          vec3 i0 = normalize( p0 - vertexPositionTransformed.xyz );
+          //costheta1 will contain dot product between incident
+          //direction and transformed normal
+          float costheta0 = dot(i0,nvtransformed);
+          Rd0.r = kd.r * Id0_pp0.r * max(costheta0, 0.0);
+          Rd0.g = kd.g * Id0_pp0.g * max(costheta0, 0.0);
+          Rd0.b = kd.b * Id0_pp0.b * max(costheta0, 0.0);
+
+          //Diffuse reflection
+          vec3 i1 = normalize( sp0 - vertexPositionTransformed.xyz );
+          // costheta1 will contain dot product between incident
+          // direction and transformed normal
+          float costheta1 = dot(i1,nvtransformed);
+          Rd1.r = kd.r * Id1_psp0.r * max(costheta1, 0.0);
+          Rd1.g = kd.g * Id1_psp0.g * max(costheta1, 0.0);
+          Rd1.b = kd.b * Id1_psp0.b * max(costheta1, 0.0);
+
+          //Specular reflection
+          //Reflection vector:-
+          vec3 r0 = 2.0 * costheta0 * nvtransformed - i0;
+          vec3 r1 = 2.0 * costheta1 * nvtransformed - i1;
+          //View vector:-
+          vec3 view = normalize( vec3(0.0, 0.0, 0.0) - vertexPositionTransformed.xyz );
+          //cosphi1 will contain dot product between reflection vector
+          //and view vector
+          float cosphi0 = dot(r0,view);
+          float cosphi1 = dot(r1,view);
+
+          float shine0 = pow( max( cosphi0, 0.0 ), alpha );
+          float shine1 = pow( max( cosphi1, 0.0 ), alpha );
+
+          float account0;
+          if (costheta0 > 0.0){
+            account0 = 1.0;
+          } else {
+            account0 = 0.0;
+          }
+
+          float account1;
+          if (costheta1 > 0.0){
+           account1 = 1.0;
+          } else {
+           account1 = 0.0;
+          }
+
+          if (specIsOn > 0.5) {
+            Rs0.r = ks.r * Id0_pp0.r * shine0 * account0;
+            Rs0.g = ks.g * Id0_pp0.g * shine0 * account0;
+            Rs0.b = ks.b * Id0_pp0.b * shine0 * account0;
+
+            Rs1.r = ks.r * Id1_psp0.r * shine1 * account1;
+            Rs1.g = ks.g * Id1_psp0.g * shine1 * account1;
+            Rs1.b = ks.b * Id1_psp0.b * shine1 * account1;
+          } else {
+            Rs0.r = 0.0;
+            Rs0.g = 0.0;
+            Rs0.b = 0.0;
+
+            Rs1.r = 0.0;
+            Rs1.g = 0.0;
+            Rs1.b = 0.0;
+          }
+
+          if (pointIsOn > 0.5 && dirIsOn > 0.5) { //both
+            R = clamp(Ra0 + Ra1 + Rd0 + Rd1 + Rs0 + Rs1, 0.0, 1.0);
+          } else if (pointIsOn > 0.5 && dirIsOn < 0.5){ //point only
+            R = clamp(Ra0 + Rd0 + Rs0, 0.0, 1.0);
+          } else if (pointIsOn < 0.5 && dirIsOn > 0.5){ //dir only
+            R = clamp(Ra1 + Rd1 + Rs1, 0.0, 1.0);
+          } else {
+
+          }
+
+          if (orthIsOn < 0.5){
+            gl_Position = P_orth * vertexPositionTransformed;
+          } else {
+            gl_Position = P_persp * vertexPositionTransformed;
+          }
+      }
+
+  </script>
+
+  <script id="fragment-shader" type="x-shader/x-fragment">
+
+      precision mediump float;
+      varying vec3 R;
+
+      void main() {
+          gl_FragColor = vec4( R.r, R.g, R.b, 1.0 );
+      }
+
+  </script>
+
+  <script type="text/javascript" src="Common/webgl-utils.js"></script>
+  <script type="text/javascript" src="Common/initShaders.js"></script>
+  <script type="text/javascript" src="Common/MV.js"></script>
+  <script type="text/javascript" src="lab4simpler.js"></script>
+  <script type="text/javascript" src="object.js"></script>
+</head>
+
+<body onload = "initGL()">
+    <canvas id="gl-canvas" height="512" width="512"></canvas> <br>
+    <button id="showPerspective" onclick="showPerspective()">Perspective</button>
+    <button id="showOrthographic" onclick="showOrthographic()">Orthographic</button> <br>
+    <button id="usePointLight" onclick="usePointLight()">Light 1</button>
+    <button id="useDirectionalLight" onclick="useDirectionalLight()">Light 2</button>
+    <button id="specular" onclick="specular()">specular</button>
+
+</body>
+</html>
