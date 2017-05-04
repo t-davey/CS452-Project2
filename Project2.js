@@ -18,6 +18,8 @@ function init() {
   gl.useProgram( myShaderProgram );
 
   var objLoader = new THREE.OBJLoader();// load the geometry of mouse.obj
+  var objLoader1 = new THREE.OBJLoader();// load the geometry of Dell+Keyboard.obj
+  var objLoader2 = new THREE.OBJLoader();// load the geometry of computer+desk+final.obj
 
   objLoader.load( "mouse.obj ", function ( object ) {
   var len = object.children.length;  //get the number of children if your object contains
@@ -62,6 +64,67 @@ function init() {
     }
 
   });
+
+  objLoader1.load( "Dell+Keyboard.obj ", function ( object ) {
+  var len = object.children.length;  //get the number of children if your object contains
+  for(var i=0; i<len; i++){
+
+      // access the information related to geometry
+      var geometry = object.children[i].geometry;
+
+      // access the vertices
+      var vertices_array = geometry.attributes.position.array;
+
+      var l = vertices_array.length/3;//get the number of faces because each face is a triangle
+      for(var j=0; j<l; j++){
+        // 'vertices' stores the coordinates of vertieces of the object
+        vertices.push( vec4(vertices_array[3*j],vertices_array[3*j+1],vertices_array[3*j+2],1));
+
+        indexList.push( 3*j );
+        indexList.push( 3*j+1 );
+        indexList.push( 3*j+2 );
+
+        vertexNormals.push( vec3( geometry.attributes.normal.array[3*j], geometry.attributes.normal.array[3*j+1], geometry.attributes.normal.array[3*j+2]) );
+
+        textureCoordinates.push( vec2( geometry.attributes.uv.array[2*j],
+                                   geometry.attributes.uv.array[2*j+1] ));
+
+      }
+      numVertices = vertexNormals.length;
+    }
+
+  });
+
+  objLoader2.load( "computer+desk+final.obj ", function ( object ) {
+  var len = object.children.length;  //get the number of children if your object contains
+  for(var i=0; i<len; i++){
+
+      // access the information related to geometry
+      var geometry = object.children[i].geometry;
+
+      // access the vertices
+      var vertices_array = geometry.attributes.position.array;
+
+      var l = vertices_array.length/3;//get the number of faces because each face is a triangle
+      for(var j=0; j<l; j++){
+        // 'vertices' stores the coordinates of vertieces of the object
+        vertices.push( vec4(vertices_array[3*j],vertices_array[3*j+1],vertices_array[3*j+2],1));
+
+        indexList.push( 3*j );
+        indexList.push( 3*j+1 );
+        indexList.push( 3*j+2 );
+
+        vertexNormals.push( vec3( geometry.attributes.normal.array[3*j], geometry.attributes.normal.array[3*j+1], geometry.attributes.normal.array[3*j+2]) );
+
+        textureCoordinates.push( vec2( geometry.attributes.uv.array[2*j],
+                                   geometry.attributes.uv.array[2*j+1] ));
+
+      }
+      numVertices = vertexNormals.length;
+    }
+
+  });
+
 
   //This is where the buffer bindings *should* go.
 
@@ -133,8 +196,7 @@ function drawObject() {
 
   //We usually put these in init() but the way the object loader works
   //the arrays are empty at the time of binding.
-  //I'm assuming this is terribly inefficient but until I find another way
-  //this is the best I've got.
+  //This should cause the browser to run out of memory pretty quickly.
   var indexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexList), gl.STATIC_DRAW);
