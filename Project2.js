@@ -17,117 +17,6 @@ function init() {
   myShaderProgram = initShaders( gl, "vertex-shader", "fragment-shader" );
   gl.useProgram( myShaderProgram );
 
-  var objLoader = new THREE.OBJLoader();// load the geometry of mouse.obj
-  var objLoader1 = new THREE.OBJLoader();// load the geometry of Dell+Keyboard.obj
-  var objLoader2 = new THREE.OBJLoader();// load the geometry of computer+desk+final.obj
-
-  objLoader.load( "mouse.obj ", function ( object ) {
-  var len = object.children.length;  //get the number of children if your object contains
-  for(var i=0; i<len; i++){
-
-      // access the information related to geometry
-      var geometry = object.children[i].geometry;
-
-      // access the vertices
-      var vertices_array = geometry.attributes.position.array;
-
-      var l = vertices_array.length/3;//get the number of faces because each face is a triangle
-      for(var j=0; j<l; j++){
-        // 'vertices' stores the coordinates of vertieces of the object
-        vertices.push( vec4(vertices_array[3*j],vertices_array[3*j+1],vertices_array[3*j+2],1));
-
-        indexList.push( 3*j );
-        indexList.push( 3*j+1 );
-        indexList.push( 3*j+2 );
-
-        // Normals And Texture Coordinates:
-        // VERSION 1: calculate the face normal here from vertices_array[3*j], vertices_array[3*j+1], vertices_array[3*j+2]
-        // in this case you will not have an averaged vertex normal,
-        // instead you will assign the face normal to vertices_array[3*j], vertices_array[3*j+1], and vertices_array[3*j+2]
-        // This is because each face is created separately, and vertices get replicated for every face.
-        // this will give you FLAT SHADING, not Gouraud or Phong shading. That is okay for the project, if you are okay with it.
-        // You will have to set up your own texture coordinates.
-
-        // VERSION 2: sometimes (but not always) obj files come with their own texture coordinates
-        // (which should get stored in geometry.attributes.uv.array)
-        // and/or normals (which should get stored in geometry.attributes.normals.array). If you do have normals, then all you have
-        // to do is to extract those normals, and you will likely end up getting interpolated shading (Gouraud or Phong depending
-        // on your choice of shader implementation). The following two lines commented out, will help you access the normals and
-        // the texture coordinates (and in this case, you do not need to do the calculations in the previous comments):
-        vertexNormals.push( vec3( geometry.attributes.normal.array[3*j], geometry.attributes.normal.array[3*j+1], geometry.attributes.normal.array[3*j+2]) );
-
-        textureCoordinates.push( vec2( geometry.attributes.uv.array[2*j],
-                                   geometry.attributes.uv.array[2*j+1] ));
-
-      }
-      numVertices = vertexNormals.length;
-    }
-
-  });
-
-  objLoader1.load( "Dell+Keyboard.obj ", function ( object ) {
-  var len = object.children.length;  //get the number of children if your object contains
-  for(var i=0; i<len; i++){
-
-      // access the information related to geometry
-      var geometry = object.children[i].geometry;
-
-      // access the vertices
-      var vertices_array = geometry.attributes.position.array;
-
-      var l = vertices_array.length/3;//get the number of faces because each face is a triangle
-      for(var j=0; j<l; j++){
-        // 'vertices' stores the coordinates of vertieces of the object
-        vertices.push( vec4(vertices_array[3*j],vertices_array[3*j+1],vertices_array[3*j+2],1));
-
-        indexList.push( 3*j );
-        indexList.push( 3*j+1 );
-        indexList.push( 3*j+2 );
-
-        vertexNormals.push( vec3( geometry.attributes.normal.array[3*j], geometry.attributes.normal.array[3*j+1], geometry.attributes.normal.array[3*j+2]) );
-
-        textureCoordinates.push( vec2( geometry.attributes.uv.array[2*j],
-                                   geometry.attributes.uv.array[2*j+1] ));
-
-      }
-      numVertices = vertexNormals.length;
-    }
-
-  });
-
-  objLoader2.load( "computer+desk+final.obj ", function ( object ) {
-  var len = object.children.length;  //get the number of children if your object contains
-  for(var i=0; i<len; i++){
-
-      // access the information related to geometry
-      var geometry = object.children[i].geometry;
-
-      // access the vertices
-      var vertices_array = geometry.attributes.position.array;
-
-      var l = vertices_array.length/3;//get the number of faces because each face is a triangle
-      for(var j=0; j<l; j++){
-        // 'vertices' stores the coordinates of vertieces of the object
-        vertices.push( vec4(vertices_array[3*j],vertices_array[3*j+1],vertices_array[3*j+2],1));
-
-        indexList.push( 3*j );
-        indexList.push( 3*j+1 );
-        indexList.push( 3*j+2 );
-
-        vertexNormals.push( vec3( geometry.attributes.normal.array[3*j], geometry.attributes.normal.array[3*j+1], geometry.attributes.normal.array[3*j+2]) );
-
-        textureCoordinates.push( vec2( geometry.attributes.uv.array[2*j],
-                                   geometry.attributes.uv.array[2*j+1] ));
-
-      }
-      numVertices = vertexNormals.length;
-    }
-
-  });
-
-
-  //This is where the buffer bindings *should* go.
-
   //Camera setup
   var e = vec3( 60.0, 40.0, 120.0 ); //eye
   var a = vec3( 0.0, 0.0, 0.0 ); //at point
@@ -188,40 +77,220 @@ function init() {
   gl.uniform3f( Idloc, 0.8, 0.8, 0.5 ); //diffuse part of incident light
   gl.uniform3f( Isloc, 0.8, 0.8, 0.8 ); //specular part of incident light
 
-  drawObject();
+  console.log("Setting up mouse...");
+  setupMouse();
+  console.log("Mouse setup complete!")
+
+  console.log("Setting up keyboard...");
+  setupKeyboard();
+  console.log("Keyboard setup complete!")
+
+  console.log("Setting up desk...");
+  setupDesk();
+  console.log("Desk setup complete!")
+
+  drawObjects();
 
 }
 
-function drawObject() {
-
-  //We usually put these in init() but the way the object loader works
-  //the arrays are empty at the time of binding.
-  //This should cause the browser to run out of memory pretty quickly.
-  var indexBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexList), gl.STATIC_DRAW);
-
-  var verticesBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
-
-  var vertexPosition = gl.getAttribLocation(myShaderProgram,"vertexPosition");
-  gl.vertexAttribPointer( vertexPosition, 4, gl.FLOAT, false, 0, 0 );
-  gl.enableVertexAttribArray( vertexPosition );
-
-  var normalsbuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, normalsbuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW);
-
-  var vertexNormalPointer = gl.getAttribLocation(myShaderProgram, "nv");
-  gl.vertexAttribPointer(vertexNormalPointer, 3, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(vertexNormalPointer);
-
-
+function drawObjects() {
   gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
   gl.drawElements( gl.TRIANGLES, numVertices, gl.UNSIGNED_SHORT, 0 );
 
-  requestAnimFrame(drawObject);
+  requestAnimFrame(drawObjects);
+}
+
+function setupMouse() {
+  // var indexList = [];
+  // var vertices=[];
+  // var vertexNormals = [];
+  // var textureCoordinates = [];
+
+
+  var objLoader = new THREE.OBJLoader();// load the geometry of mouse.obj
+
+  objLoader.load( "mouse.obj ", function ( object ) {
+  var len = object.children.length;  //get the number of children if your object contains
+  for(var i=0; i<len; i++){
+
+      // access the information related to geometry
+      var geometry = object.children[i].geometry;
+
+      // access the vertices
+      var vertices_array = geometry.attributes.position.array;
+
+      var l = vertices_array.length/3;//get the number of faces because each face is a triangle
+      for(var j=0; j<l; j++){
+        // 'vertices' stores the coordinates of vertieces of the object
+        vertices.push( vec4(vertices_array[3*j],vertices_array[3*j+1],vertices_array[3*j+2],1));
+
+        indexList.push( 3*j );
+        indexList.push( 3*j+1 );
+        indexList.push( 3*j+2 );
+
+        // Normals And Texture Coordinates:
+        // VERSION 1: calculate the face normal here from vertices_array[3*j], vertices_array[3*j+1], vertices_array[3*j+2]
+        // in this case you will not have an averaged vertex normal,
+        // instead you will assign the face normal to vertices_array[3*j], vertices_array[3*j+1], and vertices_array[3*j+2]
+        // This is because each face is created separately, and vertices get replicated for every face.
+        // this will give you FLAT SHADING, not Gouraud or Phong shading. That is okay for the project, if you are okay with it.
+        // You will have to set up your own texture coordinates.
+
+        // VERSION 2: sometimes (but not always) obj files come with their own texture coordinates
+        // (which should get stored in geometry.attributes.uv.array)
+        // and/or normals (which should get stored in geometry.attributes.normals.array). If you do have normals, then all you have
+        // to do is to extract those normals, and you will likely end up getting interpolated shading (Gouraud or Phong depending
+        // on your choice of shader implementation). The following two lines commented out, will help you access the normals and
+        // the texture coordinates (and in this case, you do not need to do the calculations in the previous comments):
+        vertexNormals.push( vec3( geometry.attributes.normal.array[3*j], geometry.attributes.normal.array[3*j+1], geometry.attributes.normal.array[3*j+2]) );
+
+        textureCoordinates.push( vec2( geometry.attributes.uv.array[2*j],
+                                   geometry.attributes.uv.array[2*j+1] ));
+
+      }
+      numVertices = vertexNormals.length;
+
+      var indexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexList), gl.STATIC_DRAW);
+
+      var verticesBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+      var vertexPosition = gl.getAttribLocation(myShaderProgram,"vertexPosition");
+      gl.vertexAttribPointer( vertexPosition, 4, gl.FLOAT, false, 0, 0 );
+      gl.enableVertexAttribArray( vertexPosition );
+
+      var normalsbuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, normalsbuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW);
+
+      var vertexNormalPointer = gl.getAttribLocation(myShaderProgram, "nv");
+      gl.vertexAttribPointer(vertexNormalPointer, 3, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(vertexNormalPointer);
+
+    }
+
+  });
+
+
+}
+
+function setupKeyboard() {
+  // var indexList = [];
+  // var vertices=[];
+  // var vertexNormals = [];
+  // var textureCoordinates = [];
+
+  var objLoader1 = new THREE.OBJLoader();// load the geometry of Dell+Keyboard.obj
+
+  objLoader1.load( "Dell+Keyboard.obj ", function ( object ) {
+  var len = object.children.length;  //get the number of children if your object contains
+  for(var i=0; i<len; i++){
+
+      // access the information related to geometry
+      var geometry = object.children[i].geometry;
+
+      // access the vertices
+      var vertices_array = geometry.attributes.position.array;
+
+      var l = vertices_array.length/3;//get the number of faces because each face is a triangle
+      for(var j=0; j<l; j++){
+        // 'vertices' stores the coordinates of vertieces of the object
+        vertices.push( vec4(vertices_array[3*j],vertices_array[3*j+1],vertices_array[3*j+2],1));
+
+        indexList.push( 3*j );
+        indexList.push( 3*j+1 );
+        indexList.push( 3*j+2 );
+
+        vertexNormals.push( vec3( geometry.attributes.normal.array[3*j], geometry.attributes.normal.array[3*j+1], geometry.attributes.normal.array[3*j+2]) );
+
+        textureCoordinates.push( vec2( geometry.attributes.uv.array[2*j],
+                                   geometry.attributes.uv.array[2*j+1] ));
+
+      }
+      numVertices = vertexNormals.length;
+
+      var indexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexList), gl.STATIC_DRAW);
+
+      var verticesBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+      var vertexPosition = gl.getAttribLocation(myShaderProgram,"vertexPosition");
+      gl.vertexAttribPointer( vertexPosition, 4, gl.FLOAT, false, 0, 0 );
+      gl.enableVertexAttribArray( vertexPosition );
+
+      var normalsbuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, normalsbuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW);
+
+      var vertexNormalPointer = gl.getAttribLocation(myShaderProgram, "nv");
+      gl.vertexAttribPointer(vertexNormalPointer, 3, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(vertexNormalPointer);
+    }
+
+  });
+}
+
+function setupDesk() {
+  var objLoader2 = new THREE.OBJLoader();// load the geometry of computer+desk+final.obj
+
+
+
+  objLoader2.load( "computer+desk+final.obj ", function ( object ) {
+  var len = object.children.length;  //get the number of children if your object contains
+  for(var i=0; i<len; i++){
+
+      // access the information related to geometry
+      var geometry = object.children[i].geometry;
+
+      // access the vertices
+      var vertices_array = geometry.attributes.position.array;
+
+      var l = vertices_array.length/3;//get the number of faces because each face is a triangle
+      for(var j=0; j<l; j++){
+        // 'vertices' stores the coordinates of vertieces of the object
+        vertices.push( vec4(vertices_array[3*j],vertices_array[3*j+1],vertices_array[3*j+2],1));
+
+        indexList.push( 3*j );
+        indexList.push( 3*j+1 );
+        indexList.push( 3*j+2 );
+
+        vertexNormals.push( vec3( geometry.attributes.normal.array[3*j], geometry.attributes.normal.array[3*j+1], geometry.attributes.normal.array[3*j+2]) );
+
+        textureCoordinates.push( vec2( geometry.attributes.uv.array[2*j],
+                                   geometry.attributes.uv.array[2*j+1] ));
+
+      }
+      numVertices = vertexNormals.length;
+
+      var indexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexList), gl.STATIC_DRAW);
+
+      var verticesBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+      var vertexPosition = gl.getAttribLocation(myShaderProgram,"vertexPosition");
+      gl.vertexAttribPointer( vertexPosition, 4, gl.FLOAT, false, 0, 0 );
+      gl.enableVertexAttribArray( vertexPosition );
+
+      var normalsbuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, normalsbuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW);
+
+      var vertexNormalPointer = gl.getAttribLocation(myShaderProgram, "nv");
+      gl.vertexAttribPointer(vertexNormalPointer, 3, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(vertexNormalPointer);
+
+    }
+
+  });
 }
 
 function look_at( e, a, vUp){
