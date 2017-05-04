@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+      <title>Computer Desk</title>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r79/three.min.js"></script>
+      <script src="OBJLoader.js"></script>
+      <script type="text/javascript" src="webgl-utils.js"></script>
+      <script type="text/javascript" src="initShaders.js"></script>
+      <script type="text/javascript" src="MV.js"></script>
+      <script type="text/javascript" src="Project2.js"></script>
+
+      <script id="vertex-shader" type="x-shader/x-vertex">
+
+        precision mediump float;
+
+        attribute vec4 vertexPosition;
+        attribute vec3 nv;
+
+        uniform mat4 M, M_inversetranspose, P_persp;
+
+        uniform vec3 ka, kd, ks; //specular components
+
+        uniform float alpha;
+
+        uniform vec3 light1; //first light source
+
+        uniform vec3 Ia, Id, Is; //ambient, diffuse, and speculars of light1
+
+        varying vec3 R;
+
+        void main() {
+          gl_PointSize = 1.0;
+
+          vec4 vertexPositionTransformed = M * vertexPosition;
+
+          vec4 nv4 = vec4( nv.x, nv.y, nv.z, 1.0 );
+          vec4 nv4transformed = M_inversetranspose * nv4;
+          vec3 nvtransformed = normalize( nv4transformed.xyz );
+
+          //get reflection for light source
+          float distance = length(light1-vertexPositionTransformed.xyz);
+          float a = .00005;
+          float b = 0.0;
+          float c = 0.0;
+          float scalefactor = a * distance * distance + b * distance + c;
+          vec3 Ia_pp = Ia / scalefactor;
+          vec3 Id_pp = Id / scalefactor;
+          vec3 Is_pp = Is / scalefactor;
+
+          vec3 Ra, Rd, Rs;
+
+          //Ambient reflection
+          Ra.r = ka.r * Ia_pp.r;
+          Ra.g = ka.g * Ia_pp.g;
+          Ra.b = ka.b * Ia_pp.b;
+
+          //Diffuse reflection
+          vec3 i = normalize( light1 - vertexPositionTransformed.xyz );
+          //costheta1 will contain dot product between incident
+          //direction and transformed normal
+          float costheta = dot(i,nvtransformed);
+          Rd.r = kd.r * Id_pp.r * max(costheta, 0.0);
+          Rd.g = kd.g * Id_pp.g * max(costheta, 0.0);
+          Rd.b = kd.b * Id_pp.b * max(costheta, 0.0);
+
+          //Specular reflection
+          //Reflection vector:-
+          vec3 r = 2.0 * costheta * nvtransformed - i;
+          //View vector:-
+          vec3 view = normalize( vec3(0.0, 0.0, 0.0) - vertexPositionTransformed.xyz );
+          //cosphi1 will contain dot product between reflection vector
+          //and view vector
+          float cosphi = dot(r,view);
+
+          float shine = pow( max( cosphi, 0.0 ), alpha );
+
+          float account;
+          if (costheta > 0.0){
+            account = 1.0;
+          } else {
+            account = 0.0;
+          }
+
+          Rs.r = ks.r * Id_pp.r * shine * account;
+          Rs.g = ks.g * Id_pp.g * shine * account;
+          Rs.b = ks.b * Id_pp.b * shine * account;
+
+          R = clamp(Ra + Rd + Rs, 0.0, 1.0);
+
+          gl_Position = P_persp * vertexPositionTransformed;
+
+        }
+
+      </script>
+
+      <script id="fragment-shader" type="x-shader/x-fragment">
+
+        precision mediump float;
+        varying vec3 R;
+
+        void main() {
+          gl_FragColor = vec4( R.r, R.g, R.b, 1.0 );
+        }
+
+      </script>
+
+    </head>
+
+    <body onload = "init()">
+      <canvas id="gl-canvas" height="512" width="512"></canvas> <br>
+    </body>
+</html>
