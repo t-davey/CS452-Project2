@@ -23,6 +23,10 @@ var transYLoc;
 
 var rotFlag = 0.0;
 
+// As of right now all objects use these globals and add to the same buffer.
+// I really don't know how working with multiple objects works.
+// I assume it involves using multiple buffers but I'm not 100% sure how
+// and all of my experiments have gone poorly.
 var numVertices;
 var indexList = [];
 var vertices=[];
@@ -38,7 +42,7 @@ function init() {
   if ( !gl ) { alert( "WebGL isn't available" ); }
 
   gl.enable(gl.DEPTH_TEST);
-  gl.viewport( 0, 0, 512, 512 );
+  gl.viewport( 0, 0, 768, 768 );
   gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
   myShaderProgram = initShaders( gl, "vertex-shader", "fragment-shader" );
@@ -101,17 +105,29 @@ function init() {
   var perspectiveProjectionMatrixLocation = gl.getUniformLocation( myShaderProgram, "P_persp" );
   gl.uniformMatrix4fv( perspectiveProjectionMatrixLocation, false, perspectiveProjectionMatrix );
 
-  //point light location
+  //light1 location
   var light1loc = gl.getUniformLocation( myShaderProgram, "light1" );
   gl.uniform3f( light1loc, 0.0, 0.0, 0.0 );
 
-  //values for light components
-  var Ialoc = gl.getUniformLocation( myShaderProgram, "Ia" );
-  var Idloc = gl.getUniformLocation( myShaderProgram, "Id" );
-  var Isloc = gl.getUniformLocation( myShaderProgram, "Is" );
-  gl.uniform3f( Ialoc, 1.0, 1.0, 1.0 ); //ambient part of incident light
-  gl.uniform3f( Idloc, 0.8, 0.8, 0.5 ); //diffuse part of incident light
-  gl.uniform3f( Isloc, 0.8, 0.8, 0.8 ); //specular part of incident light
+  //light2 location
+  var light1loc = gl.getUniformLocation( myShaderProgram, "light2" );
+  gl.uniform3f( light1loc, 80.0, 60.0, 20.0 );
+
+  //values for light1 components
+  var Ia1loc = gl.getUniformLocation( myShaderProgram, "Ia1" );
+  var Id1loc = gl.getUniformLocation( myShaderProgram, "Id1" );
+  var Is1loc = gl.getUniformLocation( myShaderProgram, "Is1" );
+  gl.uniform3f( Ia1loc, 0.0, 0.0, 1.0 ); //ambient part of incident light
+  gl.uniform3f( Id1loc, 0.8, 0.8, 0.5 ); //diffuse part of incident light
+  gl.uniform3f( Is1loc, 0.8, 0.8, 0.8 ); //specular part of incident light
+
+  //values for light2 components
+  var Ia2loc = gl.getUniformLocation( myShaderProgram, "Ia2" );
+  var Id2loc = gl.getUniformLocation( myShaderProgram, "Id2" );
+  var Is2loc = gl.getUniformLocation( myShaderProgram, "Is2" );
+  gl.uniform3f( Ia2loc, 1.0, 0.0, 0.0 ); //ambient part of incident light
+  gl.uniform3f( Id2loc, 1.0, 0.0, 0.0 ); //diffuse part of incident light
+  gl.uniform3f( Is2loc, 0.8, 0.8, 0.8 ); //specular part of incident light
 
   var kaloc = gl.getUniformLocation( myShaderProgram, "ka" );
   var kdloc = gl.getUniformLocation( myShaderProgram, "kd" );
@@ -202,7 +218,7 @@ function drawObjects() {
 
   gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
-  axis = yAxis;
+  axis = zAxis;
   rotFlag = 1.0;
 
   theta[axis] += 2.0 * rotFlag;
