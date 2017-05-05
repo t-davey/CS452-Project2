@@ -202,7 +202,10 @@ function drawObjects() {
 
   gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
+  axis = yAxis;
+  rotFlag = 1.0;
 
+  theta[axis] += 2.0 * rotFlag;
   gl.uniform3fv(thetaLoc, theta);
 
   gl.uniform1f(scaleXLoc, scaleX);
