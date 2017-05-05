@@ -6,7 +6,7 @@ Scoring rubric (out of 50 points, scaled down to 18):
 
 2) 6 points for user interaction.
   -Implemented. Controls could use some revising.
-  --(PARTIALLY DONE)
+  --(DONE)
 
 3) 12 points for lighting the scene.
   --Two lights are in the scene.
