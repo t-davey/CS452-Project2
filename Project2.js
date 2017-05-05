@@ -81,9 +81,9 @@ function init() {
   setupMouse();
   console.log("Mouse setup complete!")
 
-  console.log("Setting up keyboard...");
-  setupKeyboard();
-  console.log("Keyboard setup complete!")
+  console.log("Setting up laptop...");
+  setupLaptop();
+  console.log("Laptop setup complete!")
 
   console.log("Setting up desk...");
   setupDesk();
@@ -177,15 +177,15 @@ function setupMouse() {
 
 }
 
-function setupKeyboard() {
+function setupLaptop() {
   // var indexList = [];
   // var vertices=[];
   // var vertexNormals = [];
   // var textureCoordinates = [];
 
-  var objLoader1 = new THREE.OBJLoader();// load the geometry of Dell+Keyboard.obj
+  var objLoader1 = new THREE.OBJLoader();// load the geometry of laptop.obj
 
-  objLoader1.load( "Dell+Keyboard.obj ", function ( object ) {
+  objLoader1.load( "laptop.obj ", function ( object ) {
   var len = object.children.length;  //get the number of children if your object contains
   for(var i=0; i<len; i++){
 
