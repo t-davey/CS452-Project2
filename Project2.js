@@ -142,13 +142,13 @@ function init() {
   // setupMouse();
   // console.log("Mouse setup complete!")
 
-  console.log("Setting up laptop...");
-  setupLaptop();
-  console.log("Laptop setup complete!")
-
   // console.log("Setting up desk...");
-  // setupDesk();
-  // console.log("Desk setup complete!")
+  // setupLaptop();
+  // console.log("Laptop setup complete!")
+
+  console.log("Setting up desk...");
+  setupDesk();
+  console.log("Desk setup complete!")
 
   drawObjects();
 
@@ -393,10 +393,10 @@ function setupLaptop() {
 }
 
 function setupDesk() {
-  var objLoader2 = new THREE.OBJLoader();// load the geometry of computer+desk+final.obj
+  var objLoader2 = new THREE.OBJLoader();// load the geometry of Desk.obj
 
 
-  objLoader2.load( "computer+desk+final.obj ", function ( object ) {
+  objLoader2.load( "Desk.obj ", function ( object ) {
   var len = object.children.length;  //get the number of children if your object contains
   for(var i=0; i<len; i++){
 
