@@ -18,8 +18,8 @@ function init() {
   gl.useProgram( myShaderProgram );
 
   //Camera setup
-  var e = vec3( 60.0, 40.0, 120.0 ); //eye
-  var a = vec3( 0.0, 0.0, 0.0 ); //at point
+  var e = vec3( 20.0, 160.0, 300.0 ); //eye
+  var a = vec3( 20.0, 0.0, 0.0 ); //at point
   var vUp = vec3( 0.0, 1.0, 0.0 ); //up vector
 
   look_at(e, a, vUp);
@@ -47,12 +47,12 @@ function init() {
   gl.uniformMatrix4fv( modelviewMatrixInverseTransposeLocation, false, modelviewMatrixInverseTranspose );
 
   //Projection Matrix
-  var left = -30.0;
-  var right = 30.0;
-  var top_ = 30.0;
-  var bottom = -30.0;
+  var left = -60.0;
+  var right = 60.0;
+  var top_ = 60.0;
+  var bottom = -60.0;
   var near = 75.0;
-  var far = 150.0;
+  var far = 800.0;
 
 
   //Perspective projection Matrix
@@ -67,36 +67,36 @@ function init() {
 
   //point light location
   var light1loc = gl.getUniformLocation( myShaderProgram, "light1" );
-  gl.uniform3f( light1loc, -30.0, 0.0, 30.0 );
+  gl.uniform3f( light1loc, 0.0, 0.0, 0.0 );
 
   //values for light components
   var Ialoc = gl.getUniformLocation( myShaderProgram, "Ia" );
   var Idloc = gl.getUniformLocation( myShaderProgram, "Id" );
   var Isloc = gl.getUniformLocation( myShaderProgram, "Is" );
-  gl.uniform3f( Ialoc, 0.1, 0.1, 0.1 ); //ambient part of incident light
+  gl.uniform3f( Ialoc, 1.0, 1.0, 1.0 ); //ambient part of incident light
   gl.uniform3f( Idloc, 0.8, 0.8, 0.5 ); //diffuse part of incident light
   gl.uniform3f( Isloc, 0.8, 0.8, 0.8 ); //specular part of incident light
 
   var kaloc = gl.getUniformLocation( myShaderProgram, "ka" );
   var kdloc = gl.getUniformLocation( myShaderProgram, "kd" );
   var ksloc = gl.getUniformLocation( myShaderProgram, "ks" );
-  gl.uniform3f( kaloc, 0.5, 0.5, 0.5 ); //ambient coeffs
-  gl.uniform3f( kdloc, 0.5, 0.5, 0.5 ); //diffuse coeffs
+  gl.uniform3f( kaloc, 0.8, 0.8, 0.8 ); //ambient coeffs
+  gl.uniform3f( kdloc, 0.8, 0.8, 0.8 ); //diffuse coeffs
   gl.uniform3f( ksloc, 1.0, 1.0, 1.0 ); //specular coeffs
   var alphaloc = gl.getUniformLocation( myShaderProgram, "alpha" );
   gl.uniform1f( alphaloc, 4.0 ); //shininess coeff
 
-  console.log("Setting up mouse...");
-  setupMouse();
-  console.log("Mouse setup complete!")
+  // console.log("Setting up mouse...");
+  // setupMouse();
+  // console.log("Mouse setup complete!")
 
   console.log("Setting up laptop...");
   setupLaptop();
   console.log("Laptop setup complete!")
 
-  console.log("Setting up desk...");
-  setupDesk();
-  console.log("Desk setup complete!")
+  // console.log("Setting up desk...");
+  // setupDesk();
+  // console.log("Desk setup complete!")
 
   drawObjects();
 
