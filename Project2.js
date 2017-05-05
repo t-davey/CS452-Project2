@@ -77,6 +77,15 @@ function init() {
   gl.uniform3f( Idloc, 0.8, 0.8, 0.5 ); //diffuse part of incident light
   gl.uniform3f( Isloc, 0.8, 0.8, 0.8 ); //specular part of incident light
 
+  var kaloc = gl.getUniformLocation( myShaderProgram, "ka" );
+  var kdloc = gl.getUniformLocation( myShaderProgram, "kd" );
+  var ksloc = gl.getUniformLocation( myShaderProgram, "ks" );
+  gl.uniform3f( kaloc, 0.5, 0.5, 0.5 ); //ambient coeffs
+  gl.uniform3f( kdloc, 0.5, 0.5, 0.5 ); //diffuse coeffs
+  gl.uniform3f( ksloc, 1.0, 1.0, 1.0 ); //specular coeffs
+  var alphaloc = gl.getUniformLocation( myShaderProgram, "alpha" );
+  gl.uniform1f( alphaloc, 4.0 ); //shininess coeff
+
   console.log("Setting up mouse...");
   setupMouse();
   console.log("Mouse setup complete!")
