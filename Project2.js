@@ -92,7 +92,7 @@ function init() {
   var top_ = 60.0;
   var bottom = -60.0;
   var near = 75.0;
-  var far = 800.0;
+  var far = 1000.0;
 
 
   //Perspective projection Matrix
@@ -194,22 +194,42 @@ function arrowKeys(event)
 
     if (keyCode == 37) //Left Arrow Key
     {
-        scaleX += 0.2;
+        transX -= 0.1; //TranslateX negative
     }
 
     if (keyCode == 40) //Down Arrow Key
     {
-        scaleY += 0.2;
+        transY -= 0.1; //TranslateY negative
     }
 
     if (keyCode == 39) //Right Arrow Key
     {
-        transX += 0.1;
+        transX += 0.1; //TranslateX positive
     }
 
     if (keyCode == 38) //Up Arrow Key
     {
-        transY += 0.1;
+        transY += 0.1; //TranslateY positive
+    }
+
+    if (keyCode == 65) //a key
+    {
+      scaleX -= 0.1; //ScaleX negative
+    }
+
+    if (keyCode == 83) //s key
+    {
+      scaleY -= 0.1; //ScaleX negative
+    }
+
+    if (keyCode == 68) //d key
+    {
+      scaleX += 0.1; //ScaleX positive
+    }
+
+    if (keyCode == 87) //w key
+    {
+      scaleY += 0.1; //ScaleY positive
     }
 
 }
