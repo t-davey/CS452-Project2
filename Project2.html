@@ -10,8 +10,40 @@
       <script type="text/javascript" src="initShaders.js"></script>
       <script type="text/javascript" src="MV.js"></script>
       <script type="text/javascript" src="Project2.js"></script>
-
+      
       <script id="vertex-shader" type="x-shader/x-vertex">
+
+
+      // I would change this id for the script to be specific to an object on the screen. For example id="vertex-shader-desk"
+      // Similarly, there would be a corresponding id="fragment-shader-desk". For the laptop there will be both of these with laptop instead of desk and so on...
+      // That is it for the HTML file.
+      // In the vertex shader for each object, you define the position of each object, while fragment would have color info, like so:
+      <script id="fragment-shader-desk" type="x-shader/x-fragment">
+            precision mediump float;
+        varying vec3 R;
+
+        void main() {
+          gl_FragColor = vec4( R.r, R.g, R.b, 1.0 );
+        }
+
+        </script>
+
+        <script id="vertex-shader-desk" type="x-shader/x-vertex"> // Vertex shader specifies the position at each render. myPosition gives current position
+            attribute vec4 myPosition;
+            uniform float displacement;
+
+            void main() {
+
+            gl_Position.x = myPosition.x;
+            gl_Position.y = myPosition.y + displacement; // Whatever you have for the matrices and all that jazz for position will go here.
+            // You can change the gl_position to not be multi dimensional since we are using a string of multiplicative matrices in a line.
+            // I did not copy paste your code under id="vertex-shader" here, just to save space. But that will go under here
+            // After this, I have some code in the JS file.
+            gl_Position.z = 0.0;
+            gl_Position.w = 1.0;
+
+            }
+        </script>
 
         precision mediump float;
 

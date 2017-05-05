@@ -2,6 +2,13 @@ var canvas;
 var gl;
 var myShaderProgram;
 
+
+// As you might have guessed, there will be multiple "myShaderProgram"s here.
+// here goes nothing:
+//var myShaderProgramDesk, var myShaderProgramLaptop, var myShaderProgramWhatever
+// NEXT CHANGE: UNDER init()
+
+
 var axis = 0;
 var xAxis = 0;
 var yAxis =1;
@@ -47,6 +54,10 @@ function init() {
 
   myShaderProgram = initShaders( gl, "vertex-shader", "fragment-shader" );
   gl.useProgram( myShaderProgram );
+
+
+// The form you have is perfect! Just will have to implement for each set of shaders you created in HTML for each of the objects.
+// EXAMPLE IS AT THE END OF INIT
 
   scaleXLoc = gl.getUniformLocation(myShaderProgram, "scaleX");
   scaleYLoc = gl.getUniformLocation(myShaderProgram, "scaleY");
@@ -150,7 +161,22 @@ function init() {
   setupDesk();
   console.log("Desk setup complete!")
 
-  drawObjects();
+  // AS MENTIONED ABOVE, HERE IS AN EXAMPLE of what worked for me
+
+
+  myShaderProgramDesk = initShaders(gl, "vertex-shader-desk", "fragment-shader-desk");
+    gl.useProgram(myShaderProgramDesk);
+    
+    setupDesk(); //THIS STEP IS CRUCIAL! EACH OBJECT HAS ITS OWN DRAWING DATA, LIKE YOU DO.
+
+    // Similarly:
+    myShaderProgramLaptop = initShaders(gl, "vertex-shader-laptop", "fragment-shader-laptop");
+    gl.useProgram(myShaderProgramLaptop);
+    
+    setupLaptop();
+
+
+  drawObjects(); //This still remains. NEXT CHANGE: UNDER SETUP MOUSE
 
 }
 
@@ -250,6 +276,23 @@ function drawObjects() {
   gl.uniform1f(transXLoc, transX);
   gl.uniform1f(transYLoc, transY);
 
+//CHANGE: WE RENDER EACH OBJECT HERE, EACH WILL HAVE ITS OWN LITTLE CODE SNIPPET LIKE SO:
+    gl.useProgram(myShaderProgramDesk);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferIdDesk);
+
+    DeskLoc = gl.getUniformLocation(myShaderProgramDesk, "displacement");
+    gl.uniform1f(DeskLoc, py);
+
+    var myPosition = gl.getAttribLocation(myShaderProgramDesk, "myPosition");
+    gl.vertexAttribPointer(myPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(myPosition);
+
+
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); // <<<<<< FOR EACH ONE, HOWEVER (IF ANY), LOGIC WILL GO AFTER gl.enableVertexAttribArray(myPosition);, BUT BEFORE THE drawArrays call
+
+
+
 
   gl.drawElements( gl.TRIANGLES, numVertices, gl.UNSIGNED_SHORT, 0 );
   rotFlag = 0.0;
@@ -326,6 +369,16 @@ function setupMouse() {
       gl.vertexAttribPointer(vertexNormalPointer, 3, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(vertexNormalPointer);
 
+// CHANGES HERE:
+
+    bufferMouse = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferMouse);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(NAME OF VERTICES ARRAY), gl.STATIC_DRAW); // We flatten the array of vertices
+
+    var myPosition = gl.getAttribLocation(myShaderProgramMouse, "myPosition");
+    gl.vertexAttribPointer(myPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(myPosition);
+// END CHANGES. NEXT CHANGE: above in drawObjects()
     }
 
   });
