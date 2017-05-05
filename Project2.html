@@ -15,6 +15,12 @@
 
         precision mediump float;
 
+        uniform float scaleX;
+        uniform float scaleY;
+        uniform float transX;
+        uniform float transY;
+        uniform vec3 theta;
+
         attribute vec4 vertexPosition;
         attribute vec3 nv;
 
@@ -89,7 +95,40 @@
 
           R = clamp(Ra + Rd + Rs, 0.0, 1.0);
 
-          gl_Position = P_persp * vertexPositionTransformed;
+          // Compute the sines and cosines of theta for each of
+          //   the three axes in one computation.
+          vec3 angles = radians( theta );
+          vec3 cos = cos( angles );
+          vec3 sin = sin( angles );
+
+          // Remeber: thse matrices are column-major
+          mat4 rx = mat4( 1.0,  0.0,  0.0, 0.0,
+      		    0.0,  cos.x,  sin.x, 0.0,
+      		    0.0, -sin.x,  cos.x, 0.0,
+      		    0.0,  0.0,  0.0, 1.0 );
+
+          mat4 ry = mat4( cos.y, 0.0, -sin.y, 0.0,
+      		    0.0, 1.0,  0.0, 0.0,
+      		    sin.y, 0.0,  cos.y, 0.0,
+      		    0.0, 0.0,  0.0, 1.0 );
+
+
+          mat4 rz = mat4( cos.z, sin.z, 0.0, 0.0,
+      		    -sin.z,  cos.z, 0.0, 0.0,
+      		    0.0,  0.0, 1.0, 0.0,
+      		    0.0,  0.0, 0.0, 1.0 );
+
+          mat4 scaler = mat4(scaleX, 0.0, 0.0, 0.0,
+                             0.0, scaleY, 0.0, 0.0,
+                             0.0, 0.0, 1.0, 0.0,
+                             0.0, 0.0, 0.0, 1.0);
+
+          mat4 transl8 = mat4(1.0, 0.0, 0.0, transX,
+                              0.0, 1.0, 0.0, transY,
+                              0.0, 0.0, 1.0,  0.0,
+                              0.0, 0.0, 0.0, 1.0);
+
+          gl_Position = P_persp * vertexPositionTransformed * rz * ry * rx * scaler * transl8;
 
         }
 

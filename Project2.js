@@ -1,8 +1,35 @@
+var canvas;
+var gl;
+var myShaderProgram;
+
+var axis = 0;
+var xAxis = 0;
+var yAxis =1;
+var zAxis = 2;
+var theta = [ 0, 0, 0 ];
+var thetaLoc;
+
+var scaleX = 1.0;
+var scaleY = 1.0;
+
+var scaleXLoc;
+var scaleYLoc;
+
+var transX = 0.0;
+var transY = 0.0;
+
+var transXLoc;
+var transYLoc;
+
+var rotFlag = 0.0;
+
 var numVertices;
 var indexList = [];
 var vertices=[];
 var vertexNormals = [];
 var textureCoordinates = [];
+
+
 
 function init() {
   var canvas = document.getElementById( "gl-canvas" );
@@ -16,6 +43,15 @@ function init() {
 
   myShaderProgram = initShaders( gl, "vertex-shader", "fragment-shader" );
   gl.useProgram( myShaderProgram );
+
+  scaleXLoc = gl.getUniformLocation(myShaderProgram, "scaleX");
+  scaleYLoc = gl.getUniformLocation(myShaderProgram, "scaleY");
+
+  thetaLoc = gl.getUniformLocation(myShaderProgram, "theta");
+
+  transXLoc = gl.getUniformLocation(myShaderProgram, "transX");
+  transYLoc = gl.getUniformLocation(myShaderProgram, "transY");
+
 
   //Camera setup
   var e = vec3( 20.0, 160.0, 300.0 ); //eye
@@ -102,10 +138,82 @@ function init() {
 
 }
 
-function drawObjects() {
-  gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-  gl.drawElements( gl.TRIANGLES, numVertices, gl.UNSIGNED_SHORT, 0 );
 
+function arrowKeys(event)
+{
+    //gl.useProgram(program);
+    console.log("keypress detected");
+    var keyCode = event.keyCode;
+
+    if (keyCode == 88) // x key press
+    {
+        //thetaLoc = gl.getUniformLocation(program, "theta");
+        axis = xAxis;
+        rotFlag = 1.0;
+        //theta[axis] += 2.0;
+        //gl.uniform3fv(thetaLoc, theta);
+        //render();
+    }
+
+    else if (keyCode == 89) // y key press
+    {
+        axis = yAxis;
+        rotFlag = 1.0;
+        //theta[axis] += 2.0;
+        //gl.uniform3fv(thetaLoc, theta);
+    }
+
+    else if (keyCode == 90) // z key press
+    {
+        axis = zAxis;
+        rotFlag = 1.0;
+        //theta[axis] += 2.0;
+        //gl.uniform3fv(thetaLoc, theta);
+    }
+
+    else
+    {
+        rotFlag = 0.0;
+    }
+
+    if (keyCode == 37) //Left Arrow Key
+    {
+        scaleX += 0.2;
+    }
+
+    if (keyCode == 40) //Down Arrow Key
+    {
+        scaleY += 0.2;
+    }
+
+    if (keyCode == 39) //Right Arrow Key
+    {
+        transX += 0.1;
+    }
+
+    if (keyCode == 38) //Up Arrow Key
+    {
+        transY += 0.1;
+    }
+
+}
+
+function drawObjects() {
+
+  gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+
+
+  gl.uniform3fv(thetaLoc, theta);
+
+  gl.uniform1f(scaleXLoc, scaleX);
+  gl.uniform1f(scaleYLoc, scaleY);
+
+  gl.uniform1f(transXLoc, transX);
+  gl.uniform1f(transYLoc, transY);
+
+
+  gl.drawElements( gl.TRIANGLES, numVertices, gl.UNSIGNED_SHORT, 0 );
+  rotFlag = 0.0;
   requestAnimFrame(drawObjects);
 }
 
@@ -247,7 +355,6 @@ function setupLaptop() {
 
 function setupDesk() {
   var objLoader2 = new THREE.OBJLoader();// load the geometry of computer+desk+final.obj
-
 
 
   objLoader2.load( "computer+desk+final.obj ", function ( object ) {

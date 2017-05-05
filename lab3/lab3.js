@@ -111,15 +111,15 @@ window.onload = function init()
     gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
-    
+
 
     scaleXLoc = gl.getUniformLocation(program, "scaleX");
     //gl.uniform1f(scaleXLoc, scaleX);
 
     scaleYLoc = gl.getUniformLocation(program, "scaleY");
-    
+
     //gl.uniform1f(scaleYLoc, scaleY);
-    
+
     thetaLoc = gl.getUniformLocation(program, "theta");
 
     transXLoc = gl.getUniformLocation(program, "transX");
@@ -151,6 +151,7 @@ window.onload = function init()
 function arrowKeys(event)
 {
     //gl.useProgram(program);
+    console.log("keypress detected");
 
     var keyCode = event.keyCode;
 
