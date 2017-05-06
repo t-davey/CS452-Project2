@@ -14,7 +14,7 @@ var xAxis = 0;
 var yAxis =1;
 var zAxis = 2;
 var alpha;
-var theta = [ 0, 0, 0 ];
+var theta = [ 0.0, 0.0, 0.0 ];
 var thetaLoc;
 
 var scaleX = 1.0;
