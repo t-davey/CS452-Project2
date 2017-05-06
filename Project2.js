@@ -1,19 +1,11 @@
 var canvas;
 var gl;
-var myMouseShaderProgram;
-var myLaptopShaderProgram;
-var myDeskShaderProgram;
-
-var bufferMouse;
-var bufferLaptop;
-var bufferDesk;
-var py;
+var myShaderProgram;
 
 var axis = 0;
 var xAxis = 0;
 var yAxis =1;
 var zAxis = 2;
-var alpha;
 var theta = [ 0, 0, 0 ];
 var thetaLoc;
 
@@ -53,40 +45,16 @@ function init() {
   gl.viewport( 0, 0, 768, 768 );
   gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
-  py = 0.0;
+  myShaderProgram = initShaders( gl, "vertex-shader", "fragment-shader" );
+  gl.useProgram( myShaderProgram );
 
+  scaleXLoc = gl.getUniformLocation(myShaderProgram, "scaleX");
+  scaleYLoc = gl.getUniformLocation(myShaderProgram, "scaleY");
 
-  myLaptopShaderProgram = initShaders( gl, "laptop-vertex-shader", "laptop-fragment-shader" );
-  gl.useProgram( myLaptopShaderProgram );
+  thetaLoc = gl.getUniformLocation(myShaderProgram, "theta");
 
-  setupLaptop();
-
-  myDeskShaderProgram = initShaders( gl, "desk-vertex-shader", "desk-fragment-shader" );
-  gl.useProgram( myDeskShaderProgram );
-
-  setupDesk();
-  //gl.useProgram( myMouseShaderProgram );
-
-  //Only getting info for mouse as it's the only part being moved.
-  myMouseShaderProgram = initShaders( gl, "mouse-vertex-shader", "mouse-fragment-shader" );
-  gl.useProgram( myMouseShaderProgram );
-
-  scaleXLoc = gl.getUniformLocation(myMouseShaderProgram, "scaleX");
-  gl.uniform1f(scaleXLoc, scaleX);
-
-  scaleYLoc = gl.getUniformLocation(myMouseShaderProgram, "scaleY");
-  gl.uniform1f(scaleYLoc, scaleY);
-
-  thetaLoc = gl.getUniformLocation(myMouseShaderProgram, "theta");
-  gl.uniform3fv(thetaLoc, theta);
-
-  transXLoc = gl.getUniformLocation(myMouseShaderProgram, "transX");
-  gl.uniform1f(transXLoc, transX);
-
-  transYLoc = gl.getUniformLocation(myMouseShaderProgram, "transY");
-  gl.uniform1f(transYLoc, transY);
-
-  setupMouse();
+  transXLoc = gl.getUniformLocation(myShaderProgram, "transX");
+  transYLoc = gl.getUniformLocation(myShaderProgram, "transY");
 
 
   //Camera setup
@@ -112,9 +80,9 @@ function init() {
      u[2], v[2], n[2], e[2],
      0.0, 0.0, 0.0, 1.0 ];
 
-  var modelviewMatrixLocation = gl.getUniformLocation( myMouseShaderProgram, "M" );
+  var modelviewMatrixLocation = gl.getUniformLocation( myShaderProgram, "M" );
   gl.uniformMatrix4fv( modelviewMatrixLocation, false, modelviewMatrix );
-  var modelviewMatrixInverseTransposeLocation = gl.getUniformLocation( myMouseShaderProgram,
+  var modelviewMatrixInverseTransposeLocation = gl.getUniformLocation( myShaderProgram,
     "M_inversetranspose" );
   gl.uniformMatrix4fv( modelviewMatrixInverseTransposeLocation, false, modelviewMatrixInverseTranspose );
 
@@ -134,58 +102,53 @@ function init() {
      (right+left)/(right-left), (top_+bottom)/(top_-bottom), -(far+near)/(far-near), -1.0,
      0.0, 0.0, -2.0*far*near/(far-near), 0.0];
 
-  var perspectiveProjectionMatrixLocation = gl.getUniformLocation( myMouseShaderProgram, "P_persp" );
+  var perspectiveProjectionMatrixLocation = gl.getUniformLocation( myShaderProgram, "P_persp" );
   gl.uniformMatrix4fv( perspectiveProjectionMatrixLocation, false, perspectiveProjectionMatrix );
 
   //light1 location
-  var light1loc = gl.getUniformLocation( myMouseShaderProgram, "light1" );
+  var light1loc = gl.getUniformLocation( myShaderProgram, "light1" );
   gl.uniform3f( light1loc, 0.0, 0.0, 0.0 );
 
   //light2 location
-  var light1loc = gl.getUniformLocation( myMouseShaderProgram, "light2" );
+  var light1loc = gl.getUniformLocation( myShaderProgram, "light2" );
   gl.uniform3f( light1loc, 80.0, 60.0, 20.0 );
 
   //values for light1 components
-  var Ia1loc = gl.getUniformLocation( myMouseShaderProgram, "Ia1" );
-  var Id1loc = gl.getUniformLocation( myMouseShaderProgram, "Id1" );
-  var Is1loc = gl.getUniformLocation( myMouseShaderProgram, "Is1" );
+  var Ia1loc = gl.getUniformLocation( myShaderProgram, "Ia1" );
+  var Id1loc = gl.getUniformLocation( myShaderProgram, "Id1" );
+  var Is1loc = gl.getUniformLocation( myShaderProgram, "Is1" );
   gl.uniform3f( Ia1loc, 0.0, 0.0, 1.0 ); //ambient part of incident light
   gl.uniform3f( Id1loc, 0.8, 0.8, 0.5 ); //diffuse part of incident light
   gl.uniform3f( Is1loc, 0.8, 0.8, 0.8 ); //specular part of incident light
 
   //values for light2 components
-  var Ia2loc = gl.getUniformLocation( myMouseShaderProgram, "Ia2" );
-  var Id2loc = gl.getUniformLocation( myMouseShaderProgram, "Id2" );
-  var Is2loc = gl.getUniformLocation( myMouseShaderProgram, "Is2" );
+  var Ia2loc = gl.getUniformLocation( myShaderProgram, "Ia2" );
+  var Id2loc = gl.getUniformLocation( myShaderProgram, "Id2" );
+  var Is2loc = gl.getUniformLocation( myShaderProgram, "Is2" );
   gl.uniform3f( Ia2loc, 1.0, 0.0, 0.0 ); //ambient part of incident light
   gl.uniform3f( Id2loc, 1.0, 0.0, 0.0 ); //diffuse part of incident light
   gl.uniform3f( Is2loc, 0.8, 0.8, 0.8 ); //specular part of incident light
 
-  var kaloc = gl.getUniformLocation( myMouseShaderProgram, "ka" );
-  var kdloc = gl.getUniformLocation( myMouseShaderProgram, "kd" );
-  var ksloc = gl.getUniformLocation( myMouseShaderProgram, "ks" );
+  var kaloc = gl.getUniformLocation( myShaderProgram, "ka" );
+  var kdloc = gl.getUniformLocation( myShaderProgram, "kd" );
+  var ksloc = gl.getUniformLocation( myShaderProgram, "ks" );
   gl.uniform3f( kaloc, 0.8, 0.8, 0.8 ); //ambient coeffs
   gl.uniform3f( kdloc, 0.8, 0.8, 0.8 ); //diffuse coeffs
   gl.uniform3f( ksloc, 1.0, 1.0, 1.0 ); //specular coeffs
-  var alphaloc = gl.getUniformLocation( myMouseShaderProgram, "alpha" );
-  gl.uniform1f( alphaloc, alpha); //shininess coeff
+  var alphaloc = gl.getUniformLocation( myShaderProgram, "alpha" );
+  gl.uniform1f( alphaloc, 4.0 ); //shininess coeff
 
-  alpha = 4.0;
+  // console.log("Setting up mouse...");
+  // setupMouse();
+  // console.log("Mouse setup complete!")
 
-  console.log("Setting up mouse...");
-  gl.useProgram(myMouseShaderProgram);
-  setupMouse();
-  console.log("Mouse setup complete!")
-
-  // console.log("Setting up laptop...");
-  // gl.useProgram(myLaptopShaderProgram);
+  // console.log("Setting up desk...");
   // setupLaptop();
   // console.log("Laptop setup complete!")
 
-  // console.log("Setting up desk...");
-  // gl.useProgram(myDeskShaderProgram);
-  // setupDesk();
-  // console.log("Desk setup complete!")
+  console.log("Setting up desk...");
+  setupDesk();
+  console.log("Desk setup complete!")
 
   drawObjects();
 
@@ -195,6 +158,7 @@ function init() {
 function arrowKeys(event)
 {
     //gl.useProgram(program);
+    console.log("keypress detected");
     var keyCode = event.keyCode;
 
     if (keyCode == 88) // x key press
@@ -274,68 +238,21 @@ function drawObjects() {
 
   gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
+  // axis = zAxis;
+  // rotFlag = 1.0;
+
   theta[axis] += 2.0 * rotFlag;
   gl.uniform3fv(thetaLoc, theta);
 
-  var scaleXLoc = gl.getUniformLocation( myMouseShaderProgram, "scaleX");
   gl.uniform1f(scaleXLoc, scaleX);
-
-  var scaleYLoc = gl.getUniformLocation( myMouseShaderProgram, "scaleY");
   gl.uniform1f(scaleYLoc, scaleY);
 
-  var transXLoc = gl.getUniformLocation( myMouseShaderProgram, "transX");
   gl.uniform1f(transXLoc, transX);
-
-  var transYLoc = gl.getUniformLocation( myMouseShaderProgram, "transY");
   gl.uniform1f(transYLoc, transY);
 
-  // Render the mouse
-
-  gl.useProgram(myMouseShaderProgram);
-  gl.bindBuffer(gl.ARRAY_BUFFER, bufferMouse);
-
-  DeskLoc = gl.getUniformLocation(myMouseShaderProgram, "displacement");
-  gl.uniform1f(DeskLoc, py);
-
-  var myPosition = gl.getAttribLocation(myMouseShaderProgram, "vertexPosition");
-  gl.vertexAttribPointer(myPosition, 2, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(myPosition);
-
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-  // Render the laptop
-
-  gl.useProgram(myLaptopShaderProgram);
-  gl.bindBuffer(gl.ARRAY_BUFFER, bufferLaptop);
-
-  var LaptopLoc = gl.getUniformLocation(myLaptopShaderProgram, "displacement");
-  gl.uniform1f(LaptopLoc, py);
-
-  var myPosition = gl.getAttribLocation(myLaptopShaderProgram, "vertexPosition");
-  gl.vertexAttribPointer(myPosition, 2, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(myPosition);
-
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-  // Render the desk
-
-  gl.useProgram(myDeskShaderProgram);
-  gl.bindBuffer(gl.ARRAY_BUFFER, bufferDesk);
-
-  LaptopLoc = gl.getUniformLocation(myDeskShaderProgram, "displacement");
-  gl.uniform1f(LaptopLoc, py);
-
-  var myPosition = gl.getAttribLocation(myDeskShaderProgram, "vertexPosition");
-  gl.vertexAttribPointer(myPosition, 2, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(myPosition);
-
-  //Logic
 
   gl.drawElements( gl.TRIANGLES, numVertices, gl.UNSIGNED_SHORT, 0 );
   rotFlag = 0.0;
-
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
   requestAnimFrame(drawObjects);
 }
 
@@ -397,7 +314,7 @@ function setupMouse() {
       gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
 
-      var vertexPosition = gl.getAttribLocation(myMouseShaderProgram,"vertexPosition");
+      var vertexPosition = gl.getAttribLocation(myShaderProgram,"vertexPosition");
       gl.vertexAttribPointer( vertexPosition, 4, gl.FLOAT, false, 0, 0 );
       gl.enableVertexAttribArray( vertexPosition );
 
@@ -405,17 +322,10 @@ function setupMouse() {
       gl.bindBuffer(gl.ARRAY_BUFFER, normalsbuffer);
       gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW);
 
-      var vertexNormalPointer = gl.getAttribLocation(myMouseShaderProgram, "nv");
+      var vertexNormalPointer = gl.getAttribLocation(myShaderProgram, "nv");
       gl.vertexAttribPointer(vertexNormalPointer, 3, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(vertexNormalPointer);
 
-      bufferMouse = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, bufferMouse);
-      gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW); // We flatten the array of vertices
-
-      var myPosition = gl.getAttribLocation(myMouseShaderProgram, "vertexPosition");
-      gl.vertexAttribPointer(myPosition, 2, gl.FLOAT, false, 0, 0);
-      gl.enableVertexAttribArray(myPosition);
     }
 
   });
@@ -466,7 +376,7 @@ function setupLaptop() {
       gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
 
-      var vertexPosition = gl.getAttribLocation(myLaptopShaderProgram,"vertexPosition");
+      var vertexPosition = gl.getAttribLocation(myShaderProgram,"vertexPosition");
       gl.vertexAttribPointer( vertexPosition, 4, gl.FLOAT, false, 0, 0 );
       gl.enableVertexAttribArray( vertexPosition );
 
@@ -474,18 +384,9 @@ function setupLaptop() {
       gl.bindBuffer(gl.ARRAY_BUFFER, normalsbuffer);
       gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW);
 
-      var vertexNormalPointer = gl.getAttribLocation(myLaptopShaderProgram, "nv");
+      var vertexNormalPointer = gl.getAttribLocation(myShaderProgram, "nv");
       gl.vertexAttribPointer(vertexNormalPointer, 3, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(vertexNormalPointer);
-
-      bufferLaptop = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, bufferLaptop);
-      gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW); // We flatten the array of vertices
-
-      var myPosition = gl.getAttribLocation(myLaptopShaderProgram, vertexPosition);
-      gl.vertexAttribPointer(myPosition, 2, gl.FLOAT, false, 0, 0);
-      gl.enableVertexAttribArray(myPosition);
-
     }
 
   });
@@ -530,7 +431,7 @@ function setupDesk() {
       gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
 
-      var vertexPosition = gl.getAttribLocation(myDeskShaderProgram,"vertexPosition");
+      var vertexPosition = gl.getAttribLocation(myShaderProgram,"vertexPosition");
       gl.vertexAttribPointer( vertexPosition, 4, gl.FLOAT, false, 0, 0 );
       gl.enableVertexAttribArray( vertexPosition );
 
@@ -538,17 +439,10 @@ function setupDesk() {
       gl.bindBuffer(gl.ARRAY_BUFFER, normalsbuffer);
       gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW);
 
-      var vertexNormalPointer = gl.getAttribLocation(myDeskShaderProgram, "nv");
+      var vertexNormalPointer = gl.getAttribLocation(myShaderProgram, "nv");
       gl.vertexAttribPointer(vertexNormalPointer, 3, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(vertexNormalPointer);
 
-      bufferDesk = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, bufferDesk);
-      gl.bufferData(gl.ARRAY_BUFFER, flatten(vertexNormals), gl.STATIC_DRAW); // We flatten the array of vertices
-
-      var myPosition = gl.getAttribLocation(myDeskShaderProgram, vertexPosition);
-      gl.vertexAttribPointer(myPosition, 2, gl.FLOAT, false, 0, 0);
-      gl.enableVertexAttribArray(myPosition);
     }
 
   });
