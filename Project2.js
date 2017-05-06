@@ -13,6 +13,7 @@ var axis = 0;
 var xAxis = 0;
 var yAxis =1;
 var zAxis = 2;
+var alpha;
 var theta = [ 0, 0, 0 ];
 var thetaLoc;
 
@@ -54,7 +55,7 @@ function init() {
 
   py = 0.0;
 
-  
+
   myLaptopShaderProgram = initShaders( gl, "laptop-vertex-shader", "laptop-fragment-shader" );
   gl.useProgram( myLaptopShaderProgram );
 
@@ -77,7 +78,7 @@ function init() {
   gl.uniform1f(scaleYLoc, scaleY);
 
   thetaLoc = gl.getUniformLocation(myMouseShaderProgram, "theta");
-  gl.uniform1f(thetaLoc, theta);
+  gl.uniform3fv(thetaLoc, theta);
 
   transXLoc = gl.getUniformLocation(myMouseShaderProgram, "transX");
   gl.uniform1f(transXLoc, transX);
