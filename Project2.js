@@ -43,7 +43,7 @@ function init() {
 
   gl.enable(gl.DEPTH_TEST);
   gl.viewport( 0, 0, 768, 768 );
-  gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+  gl.clearColor( 0.5, 0.5, 0.5, 1.0 );
 
   myShaderProgram = initShaders( gl, "vertex-shader", "fragment-shader" );
   gl.useProgram( myShaderProgram );
@@ -55,6 +55,8 @@ function init() {
 
   transXLoc = gl.getUniformLocation(myShaderProgram, "transX");
   transYLoc = gl.getUniformLocation(myShaderProgram, "transY");
+
+  texImage = document.getElementById( "beige" );
 
 
   //Camera setup
@@ -138,17 +140,29 @@ function init() {
   var alphaloc = gl.getUniformLocation( myShaderProgram, "alpha" );
   gl.uniform1f( alphaloc, 4.0 ); //shininess coeff
 
+  var texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, texImage);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  var texMapLocation = gl.getUniformLocation(myShaderProgram, "texMap0");
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+
   // console.log("Setting up mouse...");
   // setupMouse();
   // console.log("Mouse setup complete!")
 
-  // console.log("Setting up desk...");
-  // setupLaptop();
-  // console.log("Laptop setup complete!")
-
   console.log("Setting up desk...");
-  setupDesk();
-  console.log("Desk setup complete!")
+  setupLaptop();
+  console.log("Laptop setup complete!")
+
+  // console.log("Setting up desk...");
+  // setupDesk();
+  // console.log("Desk setup complete!")
 
   drawObjects();
 

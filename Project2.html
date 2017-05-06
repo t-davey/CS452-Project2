@@ -21,6 +21,9 @@
         uniform float transY;
         uniform vec3 theta;
 
+        attribute vec2 texturCoordinate;
+        varying vec2 fTextureCoordinate;
+
         attribute vec4 vertexPosition;
         attribute vec3 nv;
 
@@ -170,6 +173,7 @@
                               0.0, 0.0, 0.0, 1.0);
 
           gl_Position = P_persp * vertexPositionTransformed * rz * ry * rx * scaler * transl8;
+          fTextureCoordinate = texturCoordinate;
 
         }
 
@@ -178,10 +182,19 @@
       <script id="fragment-shader" type="x-shader/x-fragment">
 
         precision mediump float;
+        varying vec2 fTextureCoordinate;
+        uniform sampler2D texMap0;
+
         varying vec3 R;
 
         void main() {
-          gl_FragColor = vec4( R.r, R.g, R.b, 1.0 );
+          //gl_FragColor = vec4( R.r, R.g, R.b, 1.0 );
+          vec4 color = texture2D(texMap0, fTextureCoordinate);
+
+          gl_FragColor.r = color.r;
+          gl_FragColor.g = color.g;
+          gl_FragColor.b = color.b;
+          gl_FragColor.a = 1.0;
         }
 
       </script>
@@ -190,6 +203,7 @@
 
     <body onload = "init()" onkeydown="arrowKeys(event)">
       <canvas id="gl-canvas" height="768" width="768"></canvas> <br>
+      <img id="beige" src="texture.jpg" hidden/>
       Controls: <br>
       Left Arrow - TranslateX negative <br>
       Right Arrow - TranslateX positive <br>
