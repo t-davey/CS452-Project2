@@ -89,10 +89,10 @@ function init() {
   gl.uniformMatrix4fv( modelviewMatrixInverseTransposeLocation, false, modelviewMatrixInverseTranspose );
 
   //Projection Matrix
-  var left = -60.0;
-  var right = 60.0;
-  var top_ = 60.0;
-  var bottom = -60.0;
+  var left = -200.0;
+  var right = 200.0;
+  var top_ = 200.0;
+  var bottom = -200.0;
   var near = 75.0;
   var far = 1000.0;
 
@@ -152,17 +152,17 @@ function init() {
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
 
-  // console.log("Setting up mouse...");
-  // setupMouse();
-  // console.log("Mouse setup complete!")
+  console.log("Setting up mouse...");
+  setupMouse();
+  console.log("Mouse setup complete!")
 
   console.log("Setting up desk...");
   setupLaptop();
   console.log("Laptop setup complete!")
 
-  // console.log("Setting up desk...");
-  // setupDesk();
-  // console.log("Desk setup complete!")
+  console.log("Setting up desk...");
+  setupDesk();
+  console.log("Desk setup complete!")
 
   drawObjects();
 
