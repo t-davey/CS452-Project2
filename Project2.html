@@ -191,9 +191,9 @@
           //gl_FragColor = vec4( R.r, R.g, R.b, 1.0 );
           vec4 color = texture2D(texMap0, fTextureCoordinate);
 
-          gl_FragColor.r = color.r;
-          gl_FragColor.g = color.g;
-          gl_FragColor.b = color.b;
+          gl_FragColor.r = color.r + R.r;
+          gl_FragColor.g = color.g + R.g;
+          gl_FragColor.b = color.b + R.b;
           gl_FragColor.a = 1.0;
         }
 

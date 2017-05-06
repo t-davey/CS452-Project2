@@ -156,7 +156,7 @@ function init() {
   setupMouse();
   console.log("Mouse setup complete!")
 
-  console.log("Setting up desk...");
+  console.log("Setting up laptop...");
   setupLaptop();
   console.log("Laptop setup complete!")
 
